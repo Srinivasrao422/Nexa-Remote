@@ -1,0 +1,10 @@
+Nexa Remote
+Version 1.0.1
+
+Highlights:
+- Professional Nexa Remote branding and UI polish
+- Improved automatic PC discovery
+- mDNS remains the primary discovery mechanism
+- Added local private-subnet discovery fallback for Wi-Fi networks where multicast/mDNS is unavailable
+- Existing secure pairing/authentication preserved
+- Existing remote-control features preserved (Mouse, Keyboard, Screen Streaming, Clipboard, Files, System Controls, Quick Controls, PC Status, App Launcher)

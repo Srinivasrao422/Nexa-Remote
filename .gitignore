@@ -1,0 +1,36 @@
+# Gradle & Build Output
+.gradle/
+/build/
+app/build/
+*.apk
+*.aab
+
+# Local Configuration & Private Secrets (CRITICAL)
+local.properties
+RELEASE_STORE_FILE
+*.jks
+*.keystore
+release-keystore.jks
+
+# IDE & Editor files
+.idea/
+*.iml
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+
+# Python & PyInstaller
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+env/
+venv/
+ENV/
+
+# OS Generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
