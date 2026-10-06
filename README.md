@@ -1,151 +1,209 @@
 # Nexa Remote
 
-**Secure local-network remote control for Windows PCs using Android.**
+> Your PC, remotely connected.
 
-Nexa Remote allows users to securely control their own Windows PC from an Android smartphone or tablet over a local Wi-Fi network. Built with Jetpack Compose on Android and a native Python/C background server on Windows, Nexa Remote offers fast response times, low latency screen streaming, and encrypted communication.
+Nexa Remote is a secure local-network remote control system that lets you control a Windows PC from an Android device.
+
+![Version](https://img.shields.io/badge/version-v1.0.1-blue)
+![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Windows-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-orange)
+[![GitHub Release](https://img.shields.io/badge/release-v1.0.1-green)](https://github.com/Srinivasrao422/Nexa-Remote/releases/tag/v1.0.1)
 
 ---
 
 ## Overview
 
-Nexa Remote bridges your Android device and Windows PC directly over your local wireless network. It requires no cloud servers, third-party internet relays, or external subscriptions, ensuring that your control sessions and data remain strictly on your local network.
+Nexa Remote connects your Android smartphone or tablet directly to your Windows PC over your local Wi-Fi or LAN network:
+
+- **Android Device:** Acts as the handheld remote control client.
+- **Windows PC:** Runs Nexa Remote Server in the background or system tray.
+- **Direct Local Communication:** Both devices communicate directly over the local network.
+- **No Cloud Relay:** Your screen, input, and data never pass through third-party servers.
+- **No Subscriptions:** Free, open-source, and local-first.
+- **Personal Ownership:** Designed specifically for controlling your own Windows PC securely.
 
 ---
 
 ## Features
 
-- **Touchpad & Mouse Control:** Full cursor navigation, left/right clicks, scrolling, and dragging gestures.
-- **Keyboard & Shortcuts:** Real-time text input, special keys (Ctrl, Alt, Win, Del, Esc), and shortcut combinations.
-- **Screen Streaming:** Low-latency live desktop display with pinch-to-zoom, panning, and touch coordinate mapping.
-- **Clipboard Synchronization:** Synchronize text instantly between Android and Windows clipboard buffers.
-- **File Manager & Transfers:** Direct local network file transfer between your phone and PC.
-- **System Controls:** Power management (Shutdown, Restart, Sleep, Lock, Sign Out).
-- **Quick Controls:** Volume adjustment, mute, media controls, and display settings.
-- **PC Status Dashboard:** Real-time hardware monitoring for CPU usage, RAM utilization, Disk space, Uptime, Network IP, and Power status.
-- **App Launcher:** Single-tap launcher for standard Windows applications (Chrome, Edge, VS Code, File Explorer, Task Manager, Notepad, Spotify, etc.).
-- **Voice Commands:** Hands-free voice commands parsed locally to trigger actions on your PC.
+- **Remote Mouse & Touchpad:** Full cursor movement, left/right/middle clicks, smooth scrolling, and tap gestures.
+- **Keyboard & Shortcuts:** Text typing, special function keys (Ctrl, Alt, Win, Del, Esc, Tab), and standard hotkeys (`Ctrl+C`, `Ctrl+V`, `Alt+Tab`, `Win+D`, `Win+L`).
+- **Live Screen Streaming:** Real-time desktop streaming with pinch-to-zoom, panning, touch coordinate mapping, and quality adjustments.
+- **Clipboard Synchronization:** One-tap text synchronization between Android and Windows clipboard buffers.
+- **File Transfer:** Direct local network file upload and download between phone and PC.
+- **System Controls:** Safe session management (Shutdown, Restart, Sleep, Lock, Sign Out).
+- **Quick Controls:** Fast adjustments for PC volume, mute status, media playback, and display settings.
+- **PC Status Dashboard:** Live hardware telemetry for CPU usage, RAM utilization, Disk space, System uptime, IP address, and Power state.
+- **App Launcher:** Single-tap launch for pre-approved Windows applications (Chrome, Edge, VS Code, File Explorer, Task Manager, Notepad, Spotify, Settings).
+- **Automatic PC Discovery:** Instant server detection via mDNS and local-subnet unicast fallback.
+- **Secure Device Pairing:** Temporary 6-digit PIN authentication with encrypted token persistence.
+- **Auto-Reconnect:** Automatic network state recovery when switching Wi-Fi access points or recovering from temporary disconnects.
+- **Windows Tray & Startup:** System tray integration, background execution, and automatic Windows startup registration.
+- **Windows Installer:** Complete Inno Setup installer package for fast deployment.
 
 ---
 
-## Architecture & How It Works
+## Download
 
-Nexa Remote utilizes a client-server architecture operating across three dedicated TCP sockets on the local network:
+### Latest Stable Release — V1.0.1
 
-1. **Command Socket (Port 5000):** Handles initial discovery, pairing PIN handshakes, authenticated JSON control commands, system status queries, and app launcher triggers.
-2. **Screen Streaming Socket (Port 5001):** Streams JPEG/RGB frame buffers from the PC display to the Android device with dynamic quality adjustment.
-3. **File Transfer Socket (Port 5002):** Dedicated binary channel for secure local file uploads and downloads.
+Get official verified binaries from the [Nexa Remote V1.0.1 GitHub Release](https://github.com/Srinivasrao422/Nexa-Remote/releases/tag/v1.0.1):
+
+- 📱 **Android Client APK:** [`Nexa Remote 1.0.1.apk`](https://github.com/Srinivasrao422/Nexa-Remote/releases/download/v1.0.1/Nexa.Remote.1.0.1.apk)
+- 💻 **Windows Setup Installer:** [`Nexa Remote Setup.exe`](https://github.com/Srinivasrao422/Nexa-Remote/releases/download/v1.0.1/Nexa.Remote.Setup.exe)
+- ⚙️ **Windows Server Standalone EXE:** [`RemoteServer.exe`](https://github.com/Srinivasrao422/Nexa-Remote/releases/download/v1.0.1/RemoteServer.exe)
+- 🔐 **Checksum Manifest:** [`SHA256SUMS.txt`](https://github.com/Srinivasrao422/Nexa-Remote/releases/download/v1.0.1/SHA256SUMS.txt)
 
 ---
 
-## Automatic PC Discovery & Local-Subnet Fallback
+## How It Works
 
-Nexa Remote supports hybrid local network discovery:
+Nexa Remote uses a multi-socket architecture operating across three dedicated local TCP channels:
 
-- **Primary Discovery (mDNS / DNS-SD):** Uses `android.net.nsd.NsdManager` to discover servers advertising under `_remote._tcp.local.` automatically.
-- **Local-Subnet Unicast Fallback:** On Wi-Fi networks where routers or access points block multicast traffic (AP Isolation / IGMP Snooping), Nexa Remote automatically probes candidate IPs within the active RFC 1918 private IPv4 subnet (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) on port 5000 using bounded parallel coroutines.
-- **Server Verification:** Probed IPs are validated via a lightweight Nexa Remote protocol check before displaying in the available server list.
+```text
+Android Device (Remote Client)
+      │
+      │ Local Wi-Fi / LAN
+      ▼
+Nexa Remote Server (Windows)
+      │
+      ├── TCP 5000 ── Commands / Authentication / Telemetry
+      ├── TCP 5001 ── Low-latency Screen Streaming
+      └── TCP 5002 ── Dedicated Binary File Transfer
+      │
+      ▼
+Windows PC Control
+```
+
+### Network Ports
+
+| Port | Service | Purpose |
+| :--- | :--- | :--- |
+| **TCP 5000** | Command Channel | Discovery, pairing PIN, authentication, touch/mouse/keyboard events, PC status |
+| **TCP 5001** | Screen Streaming | Live frame buffer video/image streaming |
+| **TCP 5002** | File Transfer | Secure local file uploading and downloading |
+
+---
+
+## Automatic PC Discovery
+
+Nexa Remote eliminates manual setup through a dual-layer discovery system:
+
+1. **Primary Discovery (mDNS / DNS-SD):** Listens for servers broadcasting under `_remote._tcp.local.` via `NsdManager`.
+2. **Local-Subnet Unicast Fallback:** On Wi-Fi routers where multicast traffic is blocked or filtered (AP Isolation / IGMP Snooping), Nexa Remote automatically probes candidate IPs on the active RFC 1918 private IPv4 subnet (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) on port 5000 using bounded parallel coroutines.
+3. **Protocol Validation:** Candidates must pass a Nexa Remote server identification handshake before appearing in the available server list.
+4. **Manual IP Fallback:** Users can also enter their PC's local IP address directly.
 
 ---
 
 ## Security
 
-- **Local Network Only:** Communication is restricted to local network IP addresses. Nexa Remote does not route data over the internet or external servers.
-- **AES-GCM Keystore Security:** Device authorization tokens are stored on Android using `AndroidKeyStore` with AES/GCM/NoPadding encryption.
-- **6-Digit PIN Pairing:** Unrecognized devices must be authorized by entering a temporary 6-digit PIN displayed on the PC server console.
-- **App Allowlist:** The App Launcher operates on a strictly defined list of binaries to prevent arbitrary executable invocation.
-
----
-
-## Network Ports
-
-Ensure the following inbound TCP ports are allowed on your Windows Defender Firewall:
-
-| Port | Service | Description |
-| :--- | :--- | :--- |
-| **TCP 5000** | Command Server | Authentication, pairing, input commands, PC status |
-| **TCP 5001** | Screen Streaming | Live desktop streaming |
-| **TCP 5002** | File Transfer | Local file uploading and downloading |
+- **Strictly Local Communication:** All traffic is restricted to your local network (`192.168.x.x`, `10.x.x.x`, `172.16-31.x.x`). No data is sent over the internet or external cloud infrastructure.
+- **Android Keystore Protection:** Device authorization tokens are stored on Android using `AndroidKeyStore` with AES/GCM/NoPadding encryption.
+- **Temporary 6-Digit PIN Pairing:** Unrecognized devices must be authorized by entering a 6-digit PIN displayed on the PC server console.
+- **Command & App Allowlist:** Input commands and executable launches are validated against strict internal schemas to prevent arbitrary command execution.
+- **Production-Signed APK:** Android release builds are signed with official production keys (`remote-release-key`).
 
 ---
 
 ## Requirements
 
-### Windows Server
+### Windows PC
 - Windows 10 or Windows 11 (64-bit)
 - Connected to the same Wi-Fi / LAN network as the phone
 
-### Android App
+### Android Device
 - Android 7.0 (API Level 24) or higher
-- Connected to the same Wi-Fi network as the PC
+- Connected to the same Wi-Fi / LAN network as the PC
 
 ---
 
 ## Installation & Setup
 
-### 1. Windows PC Setup
-1. Download `Nexa Remote Setup.exe` from the latest [Release Version 1.0.1](Nexa%20Remote%20V1.0.1%20Release/).
-2. Run the installer to set up `Nexa Remote Server`.
-3. Launch `Nexa Remote Server` from the Start Menu or System Tray.
+### Windows PC
+1. Download [`Nexa Remote Setup.exe`](https://github.com/Srinivasrao422/Nexa-Remote/releases/download/v1.0.1/Nexa.Remote.Setup.exe) from the [V1.0.1 GitHub Release](https://github.com/Srinivasrao422/Nexa-Remote/releases/tag/v1.0.1).
+2. Run `Nexa Remote Setup.exe` to install Nexa Remote Server.
+3. Allow Windows Defender Firewall rules for TCP ports 5000, 5001, and 5002 when prompted.
+4. Nexa Remote Server will launch and reside in your Windows System Tray.
 
-### 2. Android App Setup
-1. Download `Nexa Remote 1.0.1.apk` from the latest [Release Version 1.0.1](Nexa%20Remote%20V1.0.1%20Release/).
+### Android Device
+1. Download [`Nexa Remote 1.0.1.apk`](https://github.com/Srinivasrao422/Nexa-Remote/releases/download/v1.0.1/Nexa.Remote.1.0.1.apk) from the [V1.0.1 GitHub Release](https://github.com/Srinivasrao422/Nexa-Remote/releases/tag/v1.0.1).
 2. Install the APK on your Android device.
-3. Open **Nexa Remote**. Your PC will appear under **Available PCs**.
+3. Open **Nexa Remote**. Your PC will appear automatically under **Available PCs**.
 
 ---
 
 ## Pairing Procedure
 
-1. Tap your PC under **Available PCs** in the Nexa Remote app.
-2. If connecting for the first time, a 6-digit PIN will appear on the PC server console.
-3. Enter the 6-digit PIN into the app prompt.
-4. Once paired, your device token is securely saved, and future connections will authorize automatically.
+1. Open **Nexa Remote** on Android and select your PC under **Available PCs**.
+2. On first connection, a temporary 6-digit PIN will display on the Windows server console.
+3. Enter the 6-digit PIN into the prompt on your Android device.
+4. Once paired, an encrypted authorization token is saved in your phone's Android Keystore, allowing seamless automatic reconnects in the future.
+
+---
+
+## Troubleshooting
+
+- **PC Not Found Automatically?**
+  - Ensure both phone and PC are connected to the same Wi-Fi network (and not guest networks).
+  - Verify inbound rules for TCP ports 5000, 5001, and 5002 exist in Windows Defender Firewall.
+  - Tap **Enter IP Manually** in the app and enter your PC's IPv4 address (e.g. `192.168.1.50`).
+- **Connection Error / Authorization Revoked?**
+  - Open **Settings** in the Nexa Remote app, tap **Unpair**, and initiate pairing again to obtain a new authorization token.
+- **Wi-Fi Network Changed?**
+  - Nexa Remote automatically detects IP changes and reconnects when you rejoin your home Wi-Fi network.
 
 ---
 
 ## Project Structure
 
-```
+```text
 Nexa Remote/
-├── app/                        # Android Client Application
-│   ├── build.gradle.kts        # Android build script
+├── app/                        # Android Client Application (Jetpack Compose)
+│   ├── build.gradle.kts        # Android build configuration
 │   └── src/main/java/com/example/remote/
-│       ├── MainActivity.kt     # Jetpack Compose UI & Connection Engine
+│       ├── MainActivity.kt     # Jetpack Compose UI & Remote Control Engine
 │       ├── discovery/          # NsdDiscoveryManager (mDNS & Subnet Probe)
 │       ├── security/           # KeystoreEncryptedStorage
-│       └── ui/                 # AppLauncher & PC Status Screens
-├── dist/                       # Windows Server Executable Distribution
-│   └── RemoteServer/           # Standalone Windows Executable & Libraries
-├── Nexa Remote V1.0.1 Release/ # Distribution Release Artifacts
-│   ├── Android/                # Verified Signed Release APK
-│   ├── Windows/                # Windows Server & Setup Installer
-│   ├── Documentation/          # Version Release Notes
-│   └── SHA256SUMS.txt          # Cryptographic Checksum Manifest
-└── README.md                   # Project Documentation
+│       └── ui/                 # AppLauncher & PC Status Dashboard
+├── dist/                       # Windows Server Standalone Distribution
+│   └── RemoteServer/           # Executable & PyInstaller Libraries
+├── Nexa Remote V1.0.1 Release/ # Distribution Release Packaging
+│   ├── Android/                # Signed Production APK
+│   ├── Windows/                # Windows Setup Installer & Executable
+│   └── SHA256SUMS.txt          # Release Cryptographic Checksums
+├── README.md                   # Repository Documentation
+├── LICENSE                     # MIT License
+└── RELEASE_NOTES.md            # Release History
 ```
 
 ---
 
 ## Release Information
 
-- **Current Stable Version:** V1.0.1
-- **Application ID:** `com.example.remote`
+- **Current Version:** V1.0.1
 - **Version Code:** `2`
-- **Release Package:** [`Nexa Remote V1.0.1 Release/`](Nexa%20Remote%20V1.0.1%20Release/)
+- **Application ID:** `com.example.remote`
+- **GitHub Tag:** [`v1.0.1`](https://github.com/Srinivasrao422/Nexa-Remote/releases/tag/v1.0.1)
 
 ---
 
-## Troubleshooting
+## Responsible Use
 
-- **PC not appearing automatically?**
-  - Verify phone and PC are connected to the same Wi-Fi router.
-  - Check Windows Defender Firewall rules for TCP ports 5000, 5001, and 5002.
-  - Use the **Connect Manually** option in the app and enter your PC's IPv4 address (e.g. `192.168.1.50`).
-- **Authorization Revoked?**
-  - Tap **Settings** -> **Unpair Device** in the app and trigger pairing again.
+Nexa Remote is designed for authorized remote control of your own Windows PC or computers where you have explicit permission. It is intended for local network convenience, accessibility, and productivity.
 
 ---
 
-## License
+## Community & Policy
 
-This project is licensed under the [MIT License](LICENSE).
+- **Contributing:** Please review our [Contributing Guidelines](CONTRIBUTING.md).
+- **Security Policy:** Read our [Security Policy](SECURITY.md) for responsible disclosure procedures.
+- **License:** Distributed under the [MIT License](LICENSE).
+
+---
+
+## Nexa Remote
+
+> Your PC, remotely connected.
+
+Built for fast, secure, local control of your own Windows PC.
